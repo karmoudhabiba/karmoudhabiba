@@ -1,0 +1,71 @@
+name: Generate Contributions Heatmap
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: contributions-heatmap
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install requests
+        run: python -m pip install requests
+
+      - name: Generate heatmap
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+        run: python scripts/generate_heatmap.py
+
+      - name: Publish SVG to output branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -s dist/contributions.svg
+
+          cp dist/contributions.svg /tmp/contributions.svg
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --heads origin output >/dev/null 2>&1; then
+            git fetch origin output
+            git checkout -B output origin/output
+          else
+            git checkout --orphan output
+            git rm -rf --ignore-unmatch .
+          fi
+
+          cp /tmp/contributions.svg ./contributions.svg
+          git add contributions.svg
+
+          if git diff --cached --quiet; then
+            echo "No heatmap changes to commit."
+          else
+            git commit -m "chore: update contributions heatmap"
+            git push origin output
+          fi
