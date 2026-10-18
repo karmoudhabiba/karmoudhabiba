@@ -18,7 +18,7 @@
 |:--|:--|
 | Nom | Habiba Karmoud |
 | Rôle | Étudiante en informatique |
-| École | EST Marrakech-Safi |
+| École | EST Safi |
 | Option | AI Stack |
 | Localisation | SAFI, Maroc |
 
