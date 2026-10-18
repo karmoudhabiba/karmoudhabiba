@@ -20,7 +20,7 @@
 | Rôle | Étudiante en informatique |
 | École | EST Marrakech-Safi |
 | Option | AI Stack |
-| Localisation | Marrakech, Maroc |
+| Localisation | SAFI, Maroc |
 
 ### `karmoudhabiba@github ~ $ ./top-languages.sh`
 
